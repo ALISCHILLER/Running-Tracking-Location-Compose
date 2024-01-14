@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Running Tracking Location</string>
+    <string name="location_channel_id">0</string>
+    <string name="location_channel_title">Location Detail</string>
+    <string name="location_cancel">Stop</string>
+    <string name="default_location">Location: Determining…</string>
+    <string name="missing_location_permission">Missing location permission</string>
+    <string name="network_or_gps_is_not_available">Network or GPS is not available</string>
+
+</resources>
