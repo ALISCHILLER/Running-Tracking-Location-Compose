@@ -189,3 +189,5 @@ fun Context.isNetworkOrGPSEnabled():Boolean {
     val isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
     return isGpsEnabled || isNetworkEnabled
 }
+
+

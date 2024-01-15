@@ -14,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,10 +34,14 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.msa.runningtrackinglocation.ui.theme.RunningTrackingLocationTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var piLocationManager: PiLocationManager
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -47,12 +52,14 @@ class MainActivity : ComponentActivity() {
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.FOREGROUND_SERVICE,
-                    Manifest.permission.FOREGROUND_SERVICE_LOCATION
+                    Manifest.permission.FOREGROUND_SERVICE_LOCATION,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+
                 ),
                 0
             )
         }
-
+        piLocationManager.setActivity(this)
         setContent {
             RunningTrackingLocationTheme {
                 // A surface container using the 'background' color from the theme
@@ -60,7 +67,8 @@ class MainActivity : ComponentActivity() {
                 // دریافت ViewModel با استفاده از hiltViewModel
                 val viewModel: MainViewModel = hiltViewModel()
 
-                viewModel.getLoction()
+                  //  viewModel.StartCoroutineWorker()
+
                 // دریافت وضعیت uiState به عنوان یک State در Compose
                 val uiState by viewModel.uiState.collectAsState()
 
@@ -143,18 +151,11 @@ class MainActivity : ComponentActivity() {
 }
 
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     RunningTrackingLocationTheme {
-        Greeting("Android")
+
     }
 }
