@@ -23,8 +23,12 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.concurrent.Executor
@@ -37,6 +41,8 @@ class LocationWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, workerParameters) {
     private val notificationBuilder = getNotificationBuilder()
 
+
+    private var gpsCheckJob: Job? = null
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface PiLocationWorkerProviderEntryPoint {
@@ -50,9 +56,7 @@ class LocationWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         try {
-            if (!context.isNetworkOrGPSEnabled()) {
-                Log.d("LocationWorker", "isNetworkOrGPSEnabled")
-            }
+            startGpsCheck()
             val firstUpdate = workDataOf(Progress to 0)
             val lastUpdate = workDataOf(Progress to 100)
             delay(delayDuration)
@@ -94,8 +98,22 @@ class LocationWorker @AssistedInject constructor(
         }
         Timber.d("STOPPED")
         return Result.success()
+    }
 
 
+    private fun startGpsCheck() {
+        val entryPoint = EntryPointAccessors.fromApplication(
+            context,
+            PiLocationWorkerProviderEntryPoint::class.java
+        )
+        val piLocationManager = entryPoint.piLocationManager()
+        gpsCheckJob = CoroutineScope(Dispatchers.Main).launch {
+            while (true) {
+                Log.d("LocationForegroundService", "startGpsCheck")
+                piLocationManager.turnOnGPS()
+                delay(5000) // You can adjust the interval as needed
+            }
+        }
     }
 
 }

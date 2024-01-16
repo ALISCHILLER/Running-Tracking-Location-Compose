@@ -76,7 +76,6 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     val work_version = "2.9.0"
-    // Kotlin + coroutines
     implementation("androidx.work:work-runtime-ktx:$work_version")
     //services-location
     implementation("com.google.android.gms:play-services-location:21.0.1")
