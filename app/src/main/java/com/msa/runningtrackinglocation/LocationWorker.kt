@@ -57,10 +57,6 @@ class LocationWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         try {
             startGpsCheck()
-            val firstUpdate = workDataOf(Progress to 0)
-            val lastUpdate = workDataOf(Progress to 100)
-            delay(delayDuration)
-            setProgress(lastUpdate)
             val entryPoint = EntryPointAccessors.fromApplication(
                 context,
                 PiLocationWorkerProviderEntryPoint::class.java
@@ -70,9 +66,7 @@ class LocationWorker @AssistedInject constructor(
             setForeground(foregroundInfo)
             piLocationManager.locationUpdates(5).catch {
                 Timber.e(it)
-                Log.d("LocationWorker", "doWork: $it")
             }.collect {
-                Log.d("LocationWorker", "doWork: ${it.latitude} ${it.longitude}")
                 Timber.d("Received the location: ${it.latitude} ${it.longitude}")
                 val message = " ${it.latitude} ,  ${it.longitude}"
                 val messagelist = listOf(it.latitude.toString(), it.longitude.toString())
@@ -89,11 +83,11 @@ class LocationWorker @AssistedInject constructor(
             }
         } catch (e: SecurityException) {
             // Handle the SecurityException when accessing location services
-            Log.e("LocationWorker", "SecurityException: ${e.message}")
+            Timber.e("SecurityException: " + e.message)
             // Optionally, you can trigger an appropriate action or retry mechanism
         } catch (e: Exception) {
             // Handle other exceptions
-            Log.e("LocationWorker", "Exception: ${e.message}")
+            Timber.e("Exception: " + e.message)
             // Optionally, you can trigger an appropriate action or retry mechanism
         }
         Timber.d("STOPPED")
@@ -109,9 +103,9 @@ class LocationWorker @AssistedInject constructor(
         val piLocationManager = entryPoint.piLocationManager()
         gpsCheckJob = CoroutineScope(Dispatchers.Main).launch {
             while (true) {
-                Log.d("LocationForegroundService", "startGpsCheck")
+                Timber.d("startGpsCheck")
                 piLocationManager.turnOnGPS()
-                delay(5000) // You can adjust the interval as needed
+                delay(1000) // You can adjust the interval as needed
             }
         }
     }

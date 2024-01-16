@@ -15,6 +15,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -26,7 +27,7 @@ class MainViewModel @Inject constructor(
 
     private var _uiState = MutableStateFlow(listOf<String>())
     val uiState: StateFlow<List<String>> = _uiState
-    val workManager = WorkManager.getInstance(context)
+    private val workManager = WorkManager.getInstance(context)
 
     fun StartCoroutineWorker() {
         val constraints = Constraints.Builder()
@@ -39,12 +40,12 @@ class MainViewModel @Inject constructor(
         workManager.getWorkInfoByIdLiveData(workRequest.id).observeForever {
             if (it != null) {
                 val progress = it.progress
-                val value = progress.getInt(Progress, 0)
+                progress.getInt(Progress, 0)
                 // Do something with progress information
             }
             val response = it.progress.getStringArray(Constant.WEATHER_RESPONSE)
             response?.let { strResponse ->
-                Log.d("MainViewModel", "StartCoroutineWorker: $strResponse.")
+                Timber.d("StartCoroutineWorker: " + strResponse + ".")
                 _uiState.value = strResponse.toList()
             }
         }
